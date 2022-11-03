@@ -59,15 +59,17 @@ export const getAllErc20Tokens = async (address: string, chainId: number) => {
 
     const tokenData = result2.data.result;
 
-    balance = balance/Math.pow(10, tokenData['decimals']);
-             balance = balance.toFixed(2);
-             
+    console.log(tokenData)
+
+    balance = balance / Math.pow(10, tokenData["decimals"]);
+    balance = balance.toFixed(2);
 
     const tokenInfo = {
       address: token["contractAddress"],
       name: tokenData["name"],
       symbol: tokenData["symbol"],
       decimals: tokenData["decimals"],
+      logo: tokenData["logo"],
       balance: balance,
     };
 

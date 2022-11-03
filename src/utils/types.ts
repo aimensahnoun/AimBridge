@@ -4,4 +4,5 @@ export type Erc20Token = {
   address: string;
   decimals: number;
   balance: number;
+  logo: string;
 };
