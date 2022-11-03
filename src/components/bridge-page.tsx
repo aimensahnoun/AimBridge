@@ -8,7 +8,7 @@ import { utils } from 'ethers'
 
 
 // Utils import
-import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom  , selectedSourceChainAtom} from '@/utils/global-state'
+import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom } from '@/utils/global-state'
 import { chainInfo } from "@utils/chain-info"
 import { getAllErc20Tokens } from '@/utils/alchemy-api'
 import { Erc20Token } from '@/utils/types'
@@ -50,8 +50,9 @@ const BridgeMain = () => {
     useEffect(() => {
         (async () => {
             const tokens = await getAllErc20Tokens(address!, chain?.id!)
-            setErc20List(tokens)
-            setSelectedErc20(tokens[0])
+            const nonZeroTokens = tokens.filter(token => parseFloat(token.balance) !== 0)
+            setErc20List(nonZeroTokens)
+            setSelectedErc20(nonZeroTokens[0])
         })()
     }, [chain, address])
 

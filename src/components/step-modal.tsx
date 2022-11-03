@@ -96,17 +96,14 @@ const StepModal = () => {
                 }
             );
 
-            console.log(result)
-
             const resultTx = JSON.parse(result.data.result)
 
-            console.log(resultTx.tx)
 
+            console.log(resultTx.tx);
             setStep(3)
             setIsComplete(true)
             setTransaction(resultTx.tx)
             setIsLoading(false)
-            console.log(resultTx.tx);
 
         } catch (e) {
             console.log(e)
