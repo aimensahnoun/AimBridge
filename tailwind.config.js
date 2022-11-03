@@ -6,7 +6,19 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primaryBg: "#1C1C28",
+        secondaryBg: "#282A3D",
+        primaryColor: "#3E7BFA",
+        brandPurple: "#ac5dd9",
+        brandTurquoise: "#73e0e7",
+        brandOrange: "#FF8700",
+        brandYellow: "#FEDE48",
+        brandGreen: "#39DA8A",
+        brandRed: "#FF5C5D",
+      },
+    },
   },
   plugins: [],
-}
+};
