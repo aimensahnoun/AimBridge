@@ -15,7 +15,9 @@ import * as BRIDGEJSON from "@constants/contract/Bridge.json"
 import axios from 'axios'
 
 
-const StepModal = () => {
+const StepModal = ({ setIsModalOpen }: {
+    setIsModalOpen: (value: boolean) => void
+}) => {
 
     // Local State
     const [step, setStep] = useState(0)
@@ -24,10 +26,10 @@ const StepModal = () => {
     const [transaction, setTransaction] = useState("")
 
     // Global State
-    const [selectedToken] = useAtom<Erc20Token | null>(selectedTokenAtom)
-    const [amount] = useAtom<BigNumber | null>(amountAtom)
-    const [selectedTargetChain] = useAtom<Chain | null>(selectedTargetChainAtom)
-    const [selectedSourceChain] = useAtom<Chain | null>(selectedSourceChainAtom)
+    const [selectedToken, setSelectedToken] = useAtom(selectedTokenAtom)
+    const [amount, setAmount] = useAtom(amountAtom)
+    const [selectedTargetChain, setSelectedChain] = useAtom(selectedTargetChainAtom)
+    const [selectedSourceChain, setSelectedSourceChain] = useAtom(selectedSourceChainAtom)
 
 
     // Wagmi
@@ -137,6 +139,15 @@ const StepModal = () => {
                         <p className='self-center font-bold'>New token minted succesffuly</p>
                         <a href={chainInfo[selectedTargetChain?.id!]?.explorer + transaction} target="_blank" rel="noreferrer"
                             className="self-center text-primary font-bold">View Transaction</a>
+                        <button onClick={() => {
+                            setSelectedChain(null)
+                            setSelectedToken(null)
+                            setAmount(null)
+                            setSelectedSourceChain(null)
+                            setIsModalOpen(false)
+                        }} className='p-2 rounded-lg bg-primaryColor'>
+                            Make new transfer
+                        </button>
                     </>
 
             }

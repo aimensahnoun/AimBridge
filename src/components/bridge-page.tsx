@@ -54,7 +54,7 @@ const BridgeMain = () => {
             setErc20List(nonZeroTokens)
             setSelectedErc20(nonZeroTokens[0])
         })()
-    }, [chain, address])
+    }, [chain, address , isModalOpen])
 
 
 
@@ -138,7 +138,7 @@ const BridgeMain = () => {
 
 
         {isModalOpen &&
-            <StepModal />}
+            <StepModal setIsModalOpen={setIsModalOpen} />}
     </main>
 }
 
