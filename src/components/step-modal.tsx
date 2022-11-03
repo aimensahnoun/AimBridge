@@ -7,7 +7,7 @@ import { useAtom } from 'jotai'
 // Utils import
 import { amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom } from '@/utils/global-state'
 import { chainInfo } from "@utils/chain-info"
-import { Chain, useAccount, useContract, useProvider, useSigner } from 'wagmi'
+import { Chain, useAccount, useContract, useSigner } from 'wagmi'
 import { Erc20Token } from '@/utils/types'
 import { BigNumber } from 'ethers'
 import * as ERC20JSON from "@constants/contract/WrapperToken.json"
@@ -138,7 +138,7 @@ const StepModal = () => {
                     :
                     <>
                         <p className='self-center font-bold'>New token minted succesffuly</p>
-                        <a href={"https://goerli.etherscan.io/tx/" + transaction} target="_blank" rel="noreferrer"
+                        <a href={chainInfo[selectedTargetChain?.id!]?.explorer + transaction} target="_blank" rel="noreferrer"
                             className="self-center text-primary font-bold">View Transaction</a>
                     </>
 
