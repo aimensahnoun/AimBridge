@@ -30,3 +30,22 @@ a {
 * {
   box-sizing: border-box;
 }
+
+@keyframes background-pan {
+  from {
+    background-position: 0% center;
+  }
+
+  to {
+    background-position: -200% center;
+  }
+}
+
+.magic {
+  background: linear-gradient(to right, #ac5dd9 , #F858B7 , #FF6F8D , #FF9B6A);
+  background-size: 200%;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: background-pan 3s ease-in-out infinite;
+}

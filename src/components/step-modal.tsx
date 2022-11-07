@@ -57,7 +57,7 @@ const StepModal = ({ setIsModalOpen }: {
 
         try {
             const transferTransaction = await erc20Contract?.transfer(
-                chainInfo[selectedTargetChain!.id].contract,
+                chainInfo[selectedSourceChain!.id].contract,
                 amount
             )
 

@@ -3,6 +3,9 @@ import { useToken } from "wagmi";
 import { chainInfo } from "./chain-info";
 
 export const getAllErc20Tokens = async (address: string, chainId: number) => {
+
+  if(!address || !chainId) return [];
+
   const data = JSON.stringify({
     jsonrpc: "2.0",
     method: "alchemy_getTokenBalances",
@@ -15,12 +18,13 @@ export const getAllErc20Tokens = async (address: string, chainId: number) => {
 
   const config = {
     method: "post",
-    url: chainInfo[chainId].alchemyUrl,
+    url: chainInfo[chainId]?.alchemyUrl,
     headers: {
       "Content-Type": "application/json",
     },
     data: data,
   };
+
 
   const response = await axios(config);
 
@@ -58,7 +62,6 @@ export const getAllErc20Tokens = async (address: string, chainId: number) => {
     const result2 = await axios(metadataConfig);
 
     const tokenData = result2.data.result;
-
 
     balance = balance / Math.pow(10, tokenData["decimals"]);
     balance = balance.toFixed(2);
