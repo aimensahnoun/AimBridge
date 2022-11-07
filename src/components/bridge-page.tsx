@@ -3,8 +3,8 @@ import { useEffect, useState, useRef } from 'react'
 
 // Dependencies import
 import { useAtom } from 'jotai'
-import { Chain, useAccount, useBalance, useNetwork, useToken } from 'wagmi'
-import { utils } from 'ethers'
+import { Chain, useAccount, useBalance, useContractRead, useNetwork, useToken } from 'wagmi'
+import { ethers, utils } from 'ethers'
 import { If, Else, Then } from 'react-if'
 import ClipLoader from "react-spinners/ClipLoader";
 
@@ -18,6 +18,7 @@ import StepModal from './step-modal'
 import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom } from '@/utils/global-state'
 import { getAllErc20Tokens } from '@/utils/alchemy-api'
 import { Erc20Token } from '@/utils/types'
+import { contractConfig } from '@/constants/contract/config'
 
 const BridgeMain = () => {
 
@@ -47,18 +48,27 @@ const BridgeMain = () => {
         addressOrName: address,
         watch: true
     })
-
-
-
     const { data: erc20Balance, isSuccess: didLoadErc20Balance } = useBalance({
         addressOrName: address,
         token: ERC20Address as `0x${string}`,
+    })
+    const { data: tokenData } = useToken({
+        address: ERC20Address as `0x${string}`,
+    })
+
+    const { data: nativeTokenAddress } = useContractRead({
+        ...contractConfig(chain?.id!),
+        functionName: "wrappedToNative",
+        args: [ERC20FromWallet ? selectedErc20?.address : ERC20Address],
+        watch: true
     })
 
     const targetChains = chains.filter(currentChain => currentChain.id !== chain?.id)
 
     const [selectedTargetChain, setSelectedTargetChain] = useState<Chain>(targetChains[0])
 
+
+    // UseEffects
 
     useEffect(() => {
         (async () => {
@@ -69,13 +79,24 @@ const BridgeMain = () => {
         })()
     }, [chain, address, isModalOpen])
 
-
     useEffect(() => {
         setTransferAmount("0")
         if (inputRef.current) inputRef.current.value = "0"
     }, [ERC20FromWallet])
 
-
+    // Methods
+    const isButtonDisabled = () => {
+        const amount = parseFloat(transferAmount)
+        if (ERC20FromWallet) {
+            if (selectedErc20) {
+                const balance = selectedErc20.balance
+                if (transferAmount.length !== 0 && amount > 0 && amount <= balance) return false
+            }
+        } else {
+            if (ERC20Address !== "" && transferAmount.length !== 0 && amount > 0 && amount <= parseFloat(erc20Balance?.formatted!)) return false
+        }
+        return true
+    }
 
     return <main suppressHydrationWarning className='w-screen flex flex-col items-center justify-center gap-y-4' style={{
         height: `calc(100vh - ${navHeight}px)`
@@ -190,7 +211,7 @@ const BridgeMain = () => {
                                 <label className="input-group">
                                     <input ref={inputRef} onChange={(event) => {
                                         const value = event.target.value
-                                        if (!value) return
+                                        if (value.length == 0) return setTransferAmount("0")
                                         const parsedValue = parseFloat(value)
                                         if (isNaN(parsedValue)) return
                                         if (parsedValue < 0) event.target.value = "0"
@@ -207,21 +228,39 @@ const BridgeMain = () => {
                                 </label>
                             </div>
 
-                            <button disabled={
-                                transferAmount === "" || parseFloat(transferAmount) === 0 || parseFloat(transferAmount) > selectedErc20!.balance
-                            } className={`p-2 rounded-lg bg-brandPurple ${transferAmount === "" || parseFloat(transferAmount) === 0 || parseFloat(transferAmount) > selectedErc20!.balance ? "opacity-50 cursor-not-allowed" : ""
-                                }`}
-                                onClick={() => {
+                            <div className='flex items-center justify-between'>
+                                <button disabled={
+                                    isButtonDisabled()
+                                } className={`p-2 rounded-lg bg-brandPurple ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
+                                    } ${nativeTokenAddress == ethers.constants.AddressZero ? "w-full" : "w-[45%]"} `}
+                                    onClick={() => {
 
-                                    const parseAmount = utils.parseEther(transferAmount)
-                                    setSelectedTargetChainGlobal(selectedTargetChain)
-                                    setSelectedSourceChain(chain!)
-                                    setSelectedToken(selectedErc20)
-                                    setAmount(parseAmount)
-                                    setIsModalOpen(true)
-                                }}
-                            >Start Transfer</button>
+                                        const parseAmount = utils.parseEther(transferAmount)
+                                        setSelectedTargetChainGlobal(selectedTargetChain)
+                                        setSelectedSourceChain(chain!)
+                                        setSelectedToken(ERC20FromWallet ? selectedErc20 : tokenData as any)
+                                        setAmount(parseAmount)
+                                        setIsModalOpen(true)
+                                    }}
+                                >Start Transfer</button>
 
+                                {
+                                    nativeTokenAddress != ethers.constants.AddressZero &&
+                                    <button disabled={
+                                        isButtonDisabled()
+                                    } className={`p-2 rounded-lg w-[45%] bg-primaryColor ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
+                                        }`}
+                                        onClick={() => {
+
+                                            // const parseAmount = utils.parseEther(transferAmount)
+                                            // setSelectedTargetChainGlobal(selectedTargetChain)
+                                            // setSelectedSourceChain(chain!)
+                                            // setSelectedToken(ERC20FromWallet ? selectedErc20 : tokenData as any)
+                                            // setAmount(parseAmount)
+                                            // setIsModalOpen(true)
+                                        }}
+                                    >UnWrap Token</button>}
+                            </div>
                         </Then>
                     </If>
 

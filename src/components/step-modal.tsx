@@ -56,14 +56,14 @@ const StepModal = ({ setIsModalOpen }: {
         setIsLoading(true)
 
         try {
-            const transferTransaction = await erc20Contract?.transfer(
+            const transferTransaction = await erc20Contract?.approve(
                 chainInfo[selectedSourceChain!.id].contract,
                 amount
             )
 
             await transferTransaction?.wait()
 
-            console.log("Transfered to bridge")
+            console.log("Approved Bridge")
 
             setStep(1)
 
@@ -88,17 +88,22 @@ const StepModal = ({ setIsModalOpen }: {
 
 
             const result = await axios.post(
-                chainInfo[selectedTargetChain.id].webHookUrl,
+                "/api/webhook",
                 {
                     symbol: erc20Symbol,
                     tokenName: erc20Name,
                     amount: amount,
                     to: address,
+                    tokenAddress: selectedToken.address,
                     contractAddress: chainInfo[selectedTargetChain.id].contract,
+                    selectedChainId: selectedTargetChain.id,
+                    type: "mint"
                 }
             );
 
-            const resultTx = JSON.parse(result.data.result)
+            console.log(result)
+
+            const resultTx = result.data.tx
 
 
             console.log(resultTx.tx);
