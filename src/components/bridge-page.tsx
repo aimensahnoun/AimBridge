@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 // Dependencies import
 import { useAtom } from 'jotai'
-import { Chain, useAccount, useBalance, useNetwork } from 'wagmi'
+import { Chain, useAccount, useBalance, useNetwork, useToken } from 'wagmi'
 import { utils } from 'ethers'
 import { If, Else, Then } from 'react-if'
 
@@ -24,6 +24,8 @@ const BridgeMain = () => {
     const [selectedErc20, setSelectedErc20] = useState<Erc20Token | null>(null)
     const [transferAmount, setTransferAmount] = useState<string>("")
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [ERC20FromWallet, setERC20FromWallet] = useState(true)
+    const [ERC20Address, setERC20Address] = useState<string>("")
 
     // Global state
     const [navHeight] = useAtom(navbarHeightAtom)
@@ -41,6 +43,12 @@ const BridgeMain = () => {
         watch: true
     })
 
+ 
+
+    const { data: erc20Balance, isSuccess: didLoadErc20Balance } = useBalance({
+        addressOrName: address,
+        token: ERC20Address as `0x${string}`,
+    })
 
     const targetChains = chains.filter(currentChain => currentChain.id !== chain?.id)
 
@@ -59,6 +67,12 @@ const BridgeMain = () => {
 
 
 
+    console.log(
+        erc20List
+    )
+
+    console.log(erc20Balance)
+
 
     return <main suppressHydrationWarning className='w-screen flex flex-col items-center justify-center gap-y-4' style={{
         height: `calc(100vh - ${navHeight}px)`
@@ -73,73 +87,119 @@ const BridgeMain = () => {
                     <span>{parseFloat(balanceData?.formatted!).toFixed(2)} {balanceData?.symbol}</span>
                 </div>
 
-                {
-                    targetChains.length > 0 &&
-                    <div className='flex items-center gap-x-2'>
-                        <span className='font-medium text-lg'>Target Network:</span>
-                        <select onChange={(event) => {
-                            const selectedChain = targetChains.find(chain => chain.id === parseInt((event.target as HTMLSelectElement).value))
-                            setSelectedTargetChain(selectedChain!)
-                        }} className='bg-primaryColor outline-none border border-gray-700 rounded-md p-2'>
-                            {targetChains.map(currentChain => <option key={currentChain.id} value={currentChain.name}>{currentChain.name}</option>)}
-                        </select>
+                <div className='p-4 bg-secondaryBg rounded-lg flex flex-col gap-y-2'>
+                    {
+                        targetChains.length > 0 &&
+                        <div className='flex items-center gap-x-2'>
+                            <span className='font-medium text-lg'>Target Network:</span>
+                            <select onChange={(event) => {
+                                const selectedChain = targetChains.find(chain => chain.id === parseInt((event.target as HTMLSelectElement).value))
+                                setSelectedTargetChain(selectedChain!)
+                            }} className='bg-primaryColor outline-none border border-gray-700 rounded-md p-2'>
+                                {targetChains.map(currentChain => <option key={currentChain.id} value={currentChain.name}>{currentChain.name}</option>)}
+                            </select>
+                        </div>
+                    }
+
+                    <div className="divider" />
+
+
+                    <div className="tabs self-center mb-2 tabs-boxed">
+                        <a onClick={() => {
+                            setERC20FromWallet(true)
+                        }} className={`tab ${ERC20FromWallet ? "tab-active !bg-primaryColor" : ""}`}>Tokens from Wallet</a>
+                        <a onClick={() => {
+                            setERC20FromWallet(false)
+                        }} className={`tab ${!ERC20FromWallet ? "tab-active !bg-primaryColor" : ""}`}>Load Token From Address</a>
                     </div>
-                }
+
+                    <If condition={erc20List.length > 0 && ERC20FromWallet}>
+
+                        <Then>
+                            <div className='flex items-center gap-x-2'>
+                                <span className='font-medium text-lg'>Token:</span>
+                                <select onChange={(event) => {
+                                    const selectedToken = erc20List.find(token => token.address === event.target.value)
+                                    setSelectedErc20(selectedToken!)
+                                }} className='bg-primaryColor outline-none border border-gray-700 rounded-md p-2'>
+                                    {erc20List.map(currentToken => <option key={currentToken.address} value={currentToken.address}>{currentToken.symbol} {currentToken.balance}</option>)}
+                                </select>
+                            </div>
+                        </Then>
+                        <Else>
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text">ERC20 Address</span>
+                                </label>
+                                <label className="input-group">
+                                    <span>ERC20</span>
+                                    <input onChange={(event) => {
+                                        setERC20Address(event.target.value)
+                                    }} type="text" placeholder="0x52459834ca561cb55411699e9c2143683bcf865f" className="input input-bordered" />
+                                </label>
+                            </div>
+                            <If condition={didLoadErc20Balance}>
+                                <Then>
+                                    <div className='divider' />
+                                    <div className='flex items-center gap-x-2'>
+                                        <span className='font-medium text-lg'>Token:</span>
+                                        <div>
+                                            <span>{erc20Balance?.symbol}</span>
+                                        </div>
+                                    </div>
+                                    <div >
+                                        <span>Balance:</span>
+                                        <span>{parseFloat(erc20Balance?.formatted!).toFixed(2)} {erc20Balance?.symbol}</span>
+                                    </div>
+                                </Then>
+                            </If>
+
+                        </Else>
+                    </If>
 
 
+                    <div className="divider" />
 
-                {
-                    erc20List.length > 0 &&
-                    <div className='flex items-center gap-x-2'>
-                        <span className='font-medium text-lg'>Token:</span>
-                        <select onChange={(event) => {
-                            const selectedToken = erc20List.find(token => token.address === event.target.value)
-                            setSelectedErc20(selectedToken!)
-                        }} className='bg-primaryColor outline-none border border-gray-700 rounded-md p-2'>
-                            {erc20List.map(currentToken => <option key={currentToken.address} value={currentToken.address}>{currentToken.symbol} {currentToken.balance}</option>)}
-                        </select>
-                    </div>
-                }
+                    {
+                        selectedErc20 && selectedTargetChain &&
 
-                {
-                    selectedErc20 && selectedTargetChain &&
+                        <>
+                            <input className='p-2 rounded-lg bg-secondaryBg w-[20rem] outline-none' placeholder='Token value to transfer'
 
-                    <>
-                        <input className='p-2 rounded-lg bg-secondaryBg w-[20rem] outline-none' placeholder='Token value to transfer'
+                                onChange={(event) => {
+                                    const value = event.target.value
+                                    if (!value) return
+                                    const parsedValue = parseFloat(value)
+                                    if (isNaN(parsedValue)) return
+                                    if (parsedValue < 0) event.target.value = "0"
+                                    if (parsedValue > selectedErc20.balance) event.target.value = selectedErc20.balance.toString()
 
-                            onChange={(event) => {
-                                const value = event.target.value
-                                if (!value) return
-                                const parsedValue = parseFloat(value)
-                                if (isNaN(parsedValue)) return
-                                if (parsedValue < 0) event.target.value = "0"
-                                if (parsedValue > selectedErc20.balance) event.target.value = selectedErc20.balance.toString()
+                                    setTransferAmount(event.target.value)
+                                }}
 
-                                setTransferAmount(event.target.value)
-                            }}
+                                type="number"
 
-                            type="number"
-                        />
+                            />
 
-                        <button disabled={
-                            transferAmount === "" || parseFloat(transferAmount) === 0 || parseFloat(transferAmount) > selectedErc20.balance
-                        } className={`p-2 rounded-lg bg-brandPurple ${transferAmount === "" || parseFloat(transferAmount) === 0 || parseFloat(transferAmount) > selectedErc20.balance ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
-                            onClick={() => {
+                            <button disabled={
+                                transferAmount === "" || parseFloat(transferAmount) === 0 || parseFloat(transferAmount) > selectedErc20.balance
+                            } className={`p-2 rounded-lg bg-brandPurple ${transferAmount === "" || parseFloat(transferAmount) === 0 || parseFloat(transferAmount) > selectedErc20.balance ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
+                                onClick={() => {
 
-                                const parseAmount = utils.parseEther(transferAmount)
-                                setSelectedTargetChainGlobal(selectedTargetChain)
-                                setSelectedSourceChain(chain!)
-                                setSelectedToken(selectedErc20)
-                                setAmount(parseAmount)
-                                setIsModalOpen(true)
-                            }}
-                        >Start Transfer</button>
-                    </>
+                                    const parseAmount = utils.parseEther(transferAmount)
+                                    setSelectedTargetChainGlobal(selectedTargetChain)
+                                    setSelectedSourceChain(chain!)
+                                    setSelectedToken(selectedErc20)
+                                    setAmount(parseAmount)
+                                    setIsModalOpen(true)
+                                }}
+                            >Start Transfer</button>
+                        </>
 
-                }
+                    }
 
-
+                </div>
                 {isModalOpen &&
                     <StepModal setIsModalOpen={setIsModalOpen} />}
             </Then>
