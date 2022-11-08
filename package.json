@@ -19,6 +19,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-if": "^4.1.4",
+    "react-lottie": "^1.2.3",
     "react-spinners": "^0.13.6",
     "wagmi": "^0.7.10"
   },
@@ -27,6 +28,7 @@
     "@types/node": "18.11.9",
     "@types/react": "18.0.24",
     "@types/react-dom": "18.0.8",
+    "@types/react-lottie": "^1.2.6",
     "autoprefixer": "^10.4.13",
     "eslint": "8.26.0",
     "eslint-config-next": "13.0.1",

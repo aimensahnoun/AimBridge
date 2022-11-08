@@ -25,7 +25,7 @@ import { Else, If, Then } from 'react-if'
 
 
 
-const StepModal = ({ setIsModalOpen }: {
+const UnWrapModal = ({ setIsModalOpen }: {
     setIsModalOpen: (value: boolean) => void
 }) => {
 
@@ -213,4 +213,4 @@ const StepModal = ({ setIsModalOpen }: {
     </div>
 }
 
-export default StepModal
+export default UnWrapModal
