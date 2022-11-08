@@ -8,3 +8,4 @@ export const selectedTargetChainAtom = atom<Chain | null>(null);
 export const selectedTokenAtom = atom<Erc20Token | null>(null);
 export const amountAtom = atom<BigNumber | null>(null);
 export const selectedSourceChainAtom = atom<Chain | null>(null);
+export const nativeTokenAddressAtom = atom<string | null>(null);

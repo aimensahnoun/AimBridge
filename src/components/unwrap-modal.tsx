@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useAtom } from 'jotai'
 
 // Utils import
-import { amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom } from '@/utils/global-state'
+import { amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom, nativeTokenAddressAtom } from '@/utils/global-state'
 import { chainInfo } from "@utils/chain-info"
 import { Chain, useAccount, useContract, useSigner } from 'wagmi'
 import { Erc20Token } from '@/utils/types'
@@ -18,7 +18,7 @@ import axios from 'axios'
 // Lottie import
 import Lottie from 'react-lottie'
 import contractLottie from "@lotties/contract-lottie.json"
-import lockLotietLottie from "@lotties/lock-lottie.json"
+import burnLottie from "@lotties/burn-lottie.json"
 import sendLottie from "@lotties/send-lottie.json"
 import walletLottie from "@lotties/wallet-lotti.json"
 import { Else, If, Then } from 'react-if'
@@ -40,6 +40,7 @@ const UnWrapModal = ({ setIsModalOpen }: {
     const [amount, setAmount] = useAtom(amountAtom)
     const [selectedTargetChain, setSelectedChain] = useAtom(selectedTargetChainAtom)
     const [selectedSourceChain, setSelectedSourceChain] = useAtom(selectedSourceChainAtom)
+    const [nativeTokenAddress, setNativeTokenAddress] = useAtom(nativeTokenAddressAtom)
 
 
     // Wagmi
@@ -66,8 +67,11 @@ const UnWrapModal = ({ setIsModalOpen }: {
         setIsLoading(true)
 
         try {
+
+            const factoryAddress = await bridgeContract?.factory()
+
             const transferTransaction = await erc20Contract?.approve(
-                chainInfo[selectedSourceChain!.id].contract,
+                factoryAddress,
                 amount
             )
 
@@ -80,16 +84,13 @@ const UnWrapModal = ({ setIsModalOpen }: {
             const erc20Name = selectedToken.name
             const erc20Symbol = selectedToken.symbol
 
-            const initiateTx = await bridgeContract!.initiateTransfer(
-                address,
-                selectedToken?.address,
-                selectedTargetChain.id,
+            const burnTransaction = await bridgeContract!.burnWrappedToken(
+                erc20Symbol,
                 amount,
-                erc20Name,
-                erc20Symbol
+                address
             );
 
-            await initiateTx.wait();
+            await burnTransaction.wait();
 
             console.log("Initiated transfer")
 
@@ -100,14 +101,12 @@ const UnWrapModal = ({ setIsModalOpen }: {
             const result = await axios.post(
                 "/api/webhook",
                 {
-                    symbol: erc20Symbol,
-                    tokenName: erc20Name,
-                    amount: amount,
                     to: address,
-                    tokenAddress: selectedToken.address,
+                    tokenAddress: nativeTokenAddress,
+                    amount: amount,
                     contractAddress: chainInfo[selectedTargetChain.id].contract,
                     selectedChainId: selectedTargetChain.id,
-                    type: "mint"
+                    type: "unwrap"
                 }
             );
 
@@ -142,8 +141,8 @@ const UnWrapModal = ({ setIsModalOpen }: {
             <span className="font-bold text-lg">Bridge doing bridge things</span>
             <ul className="steps self-center">
                 <li className={`step ${step >= 0 && "step-primary"} ${isComplete && "step-success"} `}>Approve Transfer</li>
-                <li className={`step ${step > 0 && "step-primary"} ${isComplete && "step-success"}`}>Locking Tokens</li>
-                <li className={`step ${step > 1 && "step-primary"} ${isComplete && "step-success"}`}>Minting</li>
+                <li className={`step ${step > 0 && "step-primary"} ${isComplete && "step-success"}`}>Burning Tokens</li>
+                <li className={`step ${step > 1 && "step-primary"} ${isComplete && "step-success"}`}>Unwraping</li>
                 <li className={`step ${step > 2 && "step-primary"} ${isComplete && "step-success"}`}>Complete</li>
             </ul>
             {
@@ -163,7 +162,7 @@ const UnWrapModal = ({ setIsModalOpen }: {
                                 <If condition={step === 1}>
                                     <Then>
                                         <Lottie
-                                            options={lottieConfig(lockLotietLottie)}
+                                            options={lottieConfig(burnLottie)}
                                             height={200}
                                             width={200}
                                         />

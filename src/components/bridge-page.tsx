@@ -15,10 +15,11 @@ import StepModal from './step-modal'
 
 
 // Utils import
-import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom } from '@/utils/global-state'
+import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom, nativeTokenAddressAtom } from '@/utils/global-state'
 import { getAllErc20Tokens } from '@/utils/alchemy-api'
 import { Erc20Token } from '@/utils/types'
 import { contractConfig } from '@/constants/contract/config'
+import UnWrapModal from './unwrap-modal'
 
 const BridgeMain = () => {
 
@@ -27,6 +28,7 @@ const BridgeMain = () => {
     const [selectedErc20, setSelectedErc20] = useState<Erc20Token | null>(null)
     const [transferAmount, setTransferAmount] = useState<string>("")
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isUnwrapModalOpen, setIsUnwrapModalOpen] = useState(false)
     const [ERC20FromWallet, setERC20FromWallet] = useState(true)
     const [ERC20Address, setERC20Address] = useState<string>("")
 
@@ -39,6 +41,7 @@ const BridgeMain = () => {
     const [_selectedToken, setSelectedToken] = useAtom(selectedTokenAtom)
     const [_amount, setAmount] = useAtom(amountAtom)
     const [_selectedSourceChain, setSelectedSourceChain] = useAtom(selectedSourceChainAtom)
+    const [selectedNativeTokenAddress, setNativeTokenAddress] = useAtom(nativeTokenAddressAtom)
 
 
     // Wagmi state
@@ -56,7 +59,7 @@ const BridgeMain = () => {
         address: ERC20Address as `0x${string}`,
     })
 
-    const { data: nativeTokenAddress } = useContractRead({
+    const { data: nativeTokenAddress , isSuccess: gotNativeToken } = useContractRead({
         ...contractConfig(chain?.id!),
         functionName: "wrappedToNative",
         args: [ERC20FromWallet ? selectedErc20?.address : ERC20Address],
@@ -77,7 +80,7 @@ const BridgeMain = () => {
             setErc20List(nonZeroTokens)
             setSelectedErc20(nonZeroTokens[0])
         })()
-    }, [chain, address, isModalOpen])
+    }, [chain, address, isModalOpen , isUnwrapModalOpen])
 
     useEffect(() => {
         setTransferAmount("0")
@@ -232,7 +235,7 @@ const BridgeMain = () => {
                                 <button disabled={
                                     isButtonDisabled()
                                 } className={`p-2 rounded-lg bg-brandPurple ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
-                                    } ${nativeTokenAddress == ethers.constants.AddressZero ? "w-full" : "w-[45%]"} `}
+                                    } ${nativeTokenAddress == ethers.constants.AddressZero && gotNativeToken ? "w-full" : "w-[45%]"} `}
                                     onClick={() => {
 
                                         const parseAmount = utils.parseEther(transferAmount)
@@ -245,19 +248,21 @@ const BridgeMain = () => {
                                 >Start Transfer</button>
 
                                 {
-                                    nativeTokenAddress != ethers.constants.AddressZero &&
+                                    nativeTokenAddress !== ethers.constants.AddressZero && gotNativeToken &&
                                     <button disabled={
                                         isButtonDisabled()
                                     } className={`p-2 rounded-lg w-[45%] bg-primaryColor ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
                                         }`}
                                         onClick={() => {
+                                            console.log(nativeTokenAddress)
+                                            const parseAmount = utils.parseEther(transferAmount)
+                                            setSelectedTargetChainGlobal(selectedTargetChain)
+                                            setSelectedSourceChain(chain!)
+                                            setSelectedToken(ERC20FromWallet ? selectedErc20 : tokenData as any)
+                                            setNativeTokenAddress(nativeTokenAddress as string)
+                                            setAmount(parseAmount)
 
-                                            // const parseAmount = utils.parseEther(transferAmount)
-                                            // setSelectedTargetChainGlobal(selectedTargetChain)
-                                            // setSelectedSourceChain(chain!)
-                                            // setSelectedToken(ERC20FromWallet ? selectedErc20 : tokenData as any)
-                                            // setAmount(parseAmount)
-                                            // setIsModalOpen(true)
+                                            setIsUnwrapModalOpen(true)
                                         }}
                                     >UnWrap Token</button>}
                             </div>
@@ -267,6 +272,10 @@ const BridgeMain = () => {
                 </div>
                 {isModalOpen &&
                     <StepModal setIsModalOpen={setIsModalOpen} />}
+
+                {isUnwrapModalOpen &&
+                    <UnWrapModal setIsModalOpen={setIsUnwrapModalOpen} />}
+
             </Then>
             <Else>
                 <LandingPage />
