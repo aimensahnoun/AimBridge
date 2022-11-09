@@ -4,6 +4,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 // NextJS import
 import type { AppProps } from 'next/app'
+import dynamic from 'next/dynamic';
 
 // Dependencies import
 import {
@@ -23,6 +24,10 @@ import { publicProvider } from 'wagmi/providers/public';
 import Navbar from '@/components/navbar';
 import { ApolloClient, InMemoryCache, ApolloProvider, gql, ApolloLink, HttpLink } from '@apollo/client';
 
+
+const DynamicNavbar = dynamic(() => import('@/components/navbar'), {
+  ssr: false
+})
 
 const { chains, provider } = configureChains(
   [chain.polygonMumbai, chain.goerli],
@@ -70,7 +75,7 @@ export default function App({ Component, pageProps }: AppProps) {
     })} chains={chains}>
       <ApolloProvider client={GqlClient}>
 
-        <Navbar />
+        <DynamicNavbar />
         <Component {...pageProps} />
       </ApolloProvider>
     </RainbowKitProvider>
