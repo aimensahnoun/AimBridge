@@ -82,11 +82,21 @@ export default function HistoryPage() {
         }
     }
 
+    const chainReference = useRef(chain)
+
+
 
     useEffect(() => {
         if (!isConnected) router.replace("/")
     }, [isConnected])
 
+    useEffect(() => {
+        if(chainReference.current?.id !== chain?.id) {
+            chainReference.current = chain
+            router.reload()
+        }
+
+    } , [chain])
 
 
     return (

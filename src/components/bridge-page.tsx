@@ -20,6 +20,7 @@ import { getAllErc20Tokens } from '@/utils/alchemy-api'
 import { Erc20Token } from '@/utils/types'
 import { contractConfig } from '@/constants/contract/config'
 import UnWrapModal from './unwrap-modal'
+import { useRouter } from 'next/router'
 
 const BridgeMain = () => {
 
@@ -31,6 +32,7 @@ const BridgeMain = () => {
     const [isUnwrapModalOpen, setIsUnwrapModalOpen] = useState(false)
     const [ERC20FromWallet, setERC20FromWallet] = useState(true)
     const [ERC20Address, setERC20Address] = useState<string>("")
+    
 
     // Ref
     const inputRef = useRef<HTMLInputElement>(null)
@@ -43,6 +45,7 @@ const BridgeMain = () => {
     const [_selectedSourceChain, setSelectedSourceChain] = useAtom(selectedSourceChainAtom)
     const [selectedNativeTokenAddress, setNativeTokenAddress] = useAtom(nativeTokenAddressAtom)
 
+    const router = useRouter()
 
     // Wagmi state
     const { chain, chains } = useNetwork()
@@ -70,9 +73,10 @@ const BridgeMain = () => {
 
     const [selectedTargetChain, setSelectedTargetChain] = useState<Chain>(targetChains[0])
 
+    const chainReference = useRef(chain)
+
 
     // UseEffects
-
     useEffect(() => {
         (async () => {
             const tokens = await getAllErc20Tokens(address!, chain?.id!)
@@ -81,6 +85,14 @@ const BridgeMain = () => {
             setSelectedErc20(nonZeroTokens[0])
         })()
     }, [chain, address, isModalOpen , isUnwrapModalOpen])
+
+    useEffect(() => {
+        if(chainReference.current?.id !== chain?.id) {
+            chainReference.current = chain
+            router.reload()
+        }
+
+    } , [chain])
 
     useEffect(() => {
         setTransferAmount("0")
