@@ -15,11 +15,14 @@ import {
   chain,
   configureChains,
   createClient,
+  useNetwork,
   WagmiConfig,
 } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import Navbar from '@/components/navbar';
+import { ApolloClient, InMemoryCache, ApolloProvider, gql, ApolloLink, HttpLink } from '@apollo/client';
+
 
 const { chains, provider } = configureChains(
   [chain.polygonMumbai, chain.goerli],
@@ -39,13 +42,37 @@ const wagmiClient = createClient({
   provider
 })
 
+const MumbaiGQL = new HttpLink({
+  uri: "https://api.thegraph.com/subgraphs/name/aimensahnoun/aimbridgemumbai2"
+})
+
+const GoerliGQL = new HttpLink({
+  uri: "https://api.thegraph.com/subgraphs/name/aimensahnoun/aimbridgegoerli2"
+})
+
+const GqlClient = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: ApolloLink.split(
+    operation => {
+      return operation.getContext().chain == 80001},
+    MumbaiGQL,
+    GoerliGQL
+  )
+
+})
+
 export default function App({ Component, pageProps }: AppProps) {
+
+
   return <WagmiConfig client={wagmiClient}>
     <RainbowKitProvider theme={darkTheme({
       accentColor: '#3E7BFA',
     })} chains={chains}>
-      <Navbar />
-      <Component {...pageProps} />
+      <ApolloProvider client={GqlClient}>
+
+        <Navbar />
+        <Component {...pageProps} />
+      </ApolloProvider>
     </RainbowKitProvider>
   </WagmiConfig>
 }

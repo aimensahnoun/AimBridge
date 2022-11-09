@@ -9,6 +9,7 @@ import { useAtom } from 'jotai';
 
 // Utils import
 import { navbarHeightAtom } from '@/utils/global-state';
+import Link from 'next/link';
 
 
 const Navbar = () => {
@@ -19,12 +20,9 @@ const Navbar = () => {
     // Local state
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // // Wagmi state
-    // const { address } = useAccount();
-    // const { data: ownerAddress } = useContractRead({
-    //     ...contractConfig,
-    //     functionName: "owner"
-    // })
+    // Wagmi state
+    const { isConnected } = useAccount();
+
 
     // Ref
     const navRef = useRef<HTMLDivElement>(null);
@@ -37,7 +35,16 @@ const Navbar = () => {
 
 
     return <nav ref={navRef} className='flex p-4 items-center justify-between w-full border-b-[1px] border-b-gray-700'>
-        <span className='font-bold text-lg'>AimBridge</span>
+        <div className='flex gap-x-6 items-center'>
+
+            <Link href='/' className='font-bold text-lg'>
+                AimBridge
+            </Link>
+
+            {isConnected && <Link href="/history" className='text-gray-400 hover:text-gray-200'>
+                User History
+            </Link>}
+        </div>
 
         <div className='flex gap-x-2 items-center'>
 

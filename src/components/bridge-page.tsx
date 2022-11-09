@@ -254,7 +254,6 @@ const BridgeMain = () => {
                                     } className={`p-2 rounded-lg w-[45%] bg-primaryColor ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
                                         }`}
                                         onClick={() => {
-                                            console.log(nativeTokenAddress)
                                             const parseAmount = utils.parseEther(transferAmount)
                                             setSelectedTargetChainGlobal(selectedTargetChain)
                                             setSelectedSourceChain(chain!)

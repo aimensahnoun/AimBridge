@@ -4,6 +4,7 @@ type Chain = {
   alchemyUrl: string;
   webHookUrl: string;
   explorer: string;
+  subgraph: string;
 };
 
 export const chainInfo: Record<string, Chain> = {
@@ -13,6 +14,7 @@ export const chainInfo: Record<string, Chain> = {
     alchemyUrl: process.env.NEXT_PUBLIC_ALCHEMY_GOERLI as string,
     webHookUrl: process.env.NEXT_PUBLIC_GOERLI_WEBHOOK as string,
     explorer: "https://goerli.etherscan.io/tx/",
+    subgraph: "https://api.thegraph.com/subgraphs/name/aimensahnoun/aimbridgegoerli2",
   },
   80001: {
     name: "Mumbai",
@@ -20,5 +22,6 @@ export const chainInfo: Record<string, Chain> = {
     alchemyUrl: process.env.NEXT_PUBLIC_ALCHEMY_MUMBAI as string,
     webHookUrl: process.env.NEXT_PUBLIC_MUMBAI_WEBHOOK as string,
     explorer: "https://mumbai.polygonscan.com/tx/",
+    subgraph: "https://api.thegraph.com/subgraphs/name/aimensahnoun/aimbridgemumbai2"
   },
 };
