@@ -236,7 +236,7 @@ const BridgeMain = () => {
                                             if (parsedValue > parseFloat(erc20Balance?.formatted!)) event.target.value = erc20Balance?.formatted!
                                         }
                                         setTransferAmount(event.target.value)
-                                    }} type="text" placeholder="0.01" className="input input-bordered" />
+                                    }} type="number" placeholder="0.01" className="input input-bordered" />
                                     <span>{
                                         ERC20FromWallet ? selectedErc20?.symbol : erc20Balance?.symbol
                                     }</span>
