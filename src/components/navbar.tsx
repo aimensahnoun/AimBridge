@@ -18,7 +18,11 @@ const Navbar = () => {
     const [_navHeight, setNavHeight] = useAtom(navbarHeightAtom);
 
     // Wagmi state
-    const { isConnected } = useAccount();
+    const { isConnected } = useAccount({
+        onDisconnect: () => {
+            localStorage.clear()
+        }
+    });
 
 
     // Ref
@@ -31,7 +35,7 @@ const Navbar = () => {
     }, [navRef.current])
 
 
-    return  <nav ref={navRef} className='flex p-4 items-center justify-between w-full border-b-[1px] border-b-gray-700'>
+    return <nav ref={navRef} className='flex p-4 items-center justify-between w-full border-b-[1px] border-b-gray-700'>
         <div className='flex gap-x-6 items-center'>
 
             <Link href='/' className='font-bold text-lg'>

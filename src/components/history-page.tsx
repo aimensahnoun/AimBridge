@@ -91,12 +91,11 @@ export default function HistoryPage() {
     }, [isConnected])
 
     useEffect(() => {
-        if(chainReference.current?.id !== chain?.id) {
+        if (chainReference.current?.id !== chain?.id && chain !== undefined) {
             chainReference.current = chain
             router.reload()
         }
-
-    } , [chain])
+    }, [chain])
 
 
     return (
@@ -109,22 +108,22 @@ export default function HistoryPage() {
                 height: `calc(100vh - ${navHeight}px)`
             }}>
                 {
-                    loading ? <ClipLoader color='#fff' />  :
-                    <>
-                        <div className="tabs">
-                            {
-                                tabs.map((tab, index) => {
-                                    return <a key={index} onClick={() => setSelectedTab(index)} className={`tab tab-bordered ${selectedTab === index ? 'tab-active' : ''}`}
-                                    >{tab.name}</a>
+                    loading ? <ClipLoader color='#fff' /> :
+                        <>
+                            <div className="tabs">
+                                {
+                                    tabs.map((tab, index) => {
+                                        return <a key={index} onClick={() => setSelectedTab(index)} className={`tab tab-bordered ${selectedTab === index ? 'tab-active' : ''}`}
+                                        >{tab.name}</a>
 
-                                })
-                            }
-                        </div>
+                                    })
+                                }
+                            </div>
 
 
 
-                        {renderTable()}
-                    </>
+                            {renderTable()}
+                        </>
                 }
             </main>
 

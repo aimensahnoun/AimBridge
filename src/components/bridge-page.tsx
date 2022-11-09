@@ -88,7 +88,7 @@ const BridgeMain = () => {
     }, [chain, address, isModalOpen, isUnwrapModalOpen])
 
     useEffect(() => {
-        if (chainReference.current?.id !== chain?.id) {
+        if (chainReference.current?.id !== chain?.id && chain !== undefined) {
             chainReference.current = chain
             router.reload()
         }

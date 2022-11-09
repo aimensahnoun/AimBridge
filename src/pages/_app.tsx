@@ -70,7 +70,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
 
   return <WagmiConfig client={wagmiClient}>
-    <RainbowKitProvider theme={darkTheme({
+    <RainbowKitProvider coolMode={true} theme={darkTheme({
       accentColor: '#3E7BFA',
     })} chains={chains}>
       <ApolloProvider client={GqlClient}>
