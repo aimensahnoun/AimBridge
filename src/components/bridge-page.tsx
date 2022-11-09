@@ -32,7 +32,7 @@ const BridgeMain = () => {
     const [isUnwrapModalOpen, setIsUnwrapModalOpen] = useState(false)
     const [ERC20FromWallet, setERC20FromWallet] = useState(true)
     const [ERC20Address, setERC20Address] = useState<string>("")
-    
+
 
     // Ref
     const inputRef = useRef<HTMLInputElement>(null)
@@ -60,9 +60,10 @@ const BridgeMain = () => {
     })
     const { data: tokenData } = useToken({
         address: ERC20Address as `0x${string}`,
+        staleTime: 2000,
     })
 
-    const { data: nativeTokenAddress , isSuccess: gotNativeToken } = useContractRead({
+    const { data: nativeTokenAddress, isSuccess: gotNativeToken } = useContractRead({
         ...contractConfig(chain?.id!),
         functionName: "wrappedToNative",
         args: [ERC20FromWallet ? selectedErc20?.address : ERC20Address],
@@ -84,15 +85,15 @@ const BridgeMain = () => {
             setErc20List(nonZeroTokens)
             setSelectedErc20(nonZeroTokens[0])
         })()
-    }, [chain, address, isModalOpen , isUnwrapModalOpen])
+    }, [chain, address, isModalOpen, isUnwrapModalOpen])
 
     useEffect(() => {
-        if(chainReference.current?.id !== chain?.id) {
+        if (chainReference.current?.id !== chain?.id) {
             chainReference.current = chain
             router.reload()
         }
 
-    } , [chain])
+    }, [chain])
 
     useEffect(() => {
         setTransferAmount("0")
