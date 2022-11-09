@@ -18,7 +18,7 @@ const Navbar = () => {
     const [_navHeight, setNavHeight] = useAtom(navbarHeightAtom);
 
     // Local state
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSSR, setIsSSR] = useState(true);
 
     // Wagmi state
     const { isConnected } = useAccount();
@@ -27,6 +27,10 @@ const Navbar = () => {
     // Ref
     const navRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        setIsSSR(false);
+    }, [])
+
     // useEffect
     useEffect(() => {
         const height = navRef.current?.clientHeight;
@@ -34,7 +38,7 @@ const Navbar = () => {
     }, [navRef.current])
 
 
-    return <nav ref={navRef} className='flex p-4 items-center justify-between w-full border-b-[1px] border-b-gray-700'>
+    return !isSSR && <nav ref={navRef} className='flex p-4 items-center justify-between w-full border-b-[1px] border-b-gray-700'>
         <div className='flex gap-x-6 items-center'>
 
             <Link href='/' className='font-bold text-lg'>
