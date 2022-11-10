@@ -22,6 +22,7 @@ import burnLottie from "@lotties/burn-lottie.json"
 import sendLottie from "@lotties/send-lottie.json"
 import walletLottie from "@lotties/wallet-lotti.json"
 import { Else, If, Then } from 'react-if'
+import { hash } from '@/utils/hasing'
 
 
 
@@ -96,17 +97,31 @@ const UnWrapModal = ({ setIsModalOpen }: {
 
             setStep(2)
 
+            const timeStamp = Math.floor(Date.now() / 1000);
 
+            const bodyObject = {
+                to: address,
+                tokenAddress: nativeTokenAddress,
+                amount: amount,
+                contractAddress: chainInfo[selectedTargetChain.id].contract,
+                selectedChainId: selectedTargetChain.id,
+                type: "unwrap"
+            }
+
+            let data = {
+                t: timeStamp,
+                content: bodyObject,
+            };
+
+            const hashedValue = hash(JSON.stringify(data));
 
             const result = await axios.post(
                 "/api/webhook",
                 {
-                    to: address,
-                    tokenAddress: nativeTokenAddress,
-                    amount: amount,
-                    contractAddress: chainInfo[selectedTargetChain.id].contract,
+                    t: timeStamp,
+                    hash: hashedValue,
+                    data: bodyObject,
                     selectedChainId: selectedTargetChain.id,
-                    type: "unwrap"
                 }
             );
 

@@ -21,6 +21,7 @@ import { Erc20Token } from '@/utils/types'
 import { contractConfig } from '@/constants/contract/config'
 import UnWrapModal from './unwrap-modal'
 import { useRouter } from 'next/router'
+import { hash } from '@/utils/hasing'
 
 const BridgeMain = () => {
 

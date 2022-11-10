@@ -13,6 +13,7 @@ import { BigNumber } from 'ethers'
 import { lottieConfig } from '@/utils/lottie-config'
 import * as ERC20JSON from "@constants/contract/WrapperToken.json"
 import * as BRIDGEJSON from "@constants/contract/Bridge.json"
+import { hash } from "@utils/hasing"
 import axios from 'axios'
 
 // Lottie import
@@ -66,6 +67,10 @@ const StepModal = ({ setIsModalOpen }: {
         setIsLoading(true)
 
         try {
+
+
+
+
             const transferTransaction = await erc20Contract?.approve(
                 chainInfo[selectedSourceChain!.id].contract,
                 amount
@@ -79,6 +84,7 @@ const StepModal = ({ setIsModalOpen }: {
 
             const erc20Name = selectedToken.name
             const erc20Symbol = selectedToken.symbol
+
 
             const initiateTx = await bridgeContract!.initiateTransfer(
                 address,
@@ -95,19 +101,33 @@ const StepModal = ({ setIsModalOpen }: {
 
             setStep(2)
 
+            const timeStamp = Math.floor(Date.now() / 1000);
 
+            const bodyObject = {
+                symbol: erc20Symbol,
+                tokenName: erc20Name,
+                amount: amount,
+                to: address,
+                tokenAddress: selectedToken.address,
+                contractAddress: chainInfo[selectedTargetChain.id].contract,
+                selectedChainId: selectedTargetChain.id,
+                type: "mint"
+            }
+
+            let data = {
+                t: timeStamp,
+                content: bodyObject,
+            };
+
+            const hashedValue = hash(JSON.stringify(data));
 
             const result = await axios.post(
                 "/api/webhook",
                 {
-                    symbol: erc20Symbol,
-                    tokenName: erc20Name,
-                    amount: amount,
-                    to: address,
-                    tokenAddress: selectedToken.address,
-                    contractAddress: chainInfo[selectedTargetChain.id].contract,
+                    t: timeStamp,
+                    hash: hashedValue,
+                    data: bodyObject,
                     selectedChainId: selectedTargetChain.id,
-                    type: "mint"
                 }
             );
 
