@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import axios from "axios";
 import type { NextApiRequest, NextApiResponse } from "next";
+import crypto from "crypto";
 
 type Parameters = {
   symbol: string;
@@ -20,6 +21,15 @@ type data = {
 
 import { chainInfo } from "../../utils/chain-info";
 
+const hash = (body: any, secret: string) => {
+  const encrypted = crypto
+    .createHash("sha256")
+    .update(secret + body)
+    .digest("hex");
+
+  return encrypted;
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<data>
@@ -37,15 +47,25 @@ export default async function handler(
 
   const transactionSecret = process.env.WEBHOOK_SECRET as string;
 
+  const timeStamp = Math.floor(Date.now() / 1000);
+
+  let data = {
+    t: timeStamp,
+    content: req.body,
+  };
+
+  const hashed = hash(JSON.stringify(data), transactionSecret);
+
+  console.log({
+    t: timeStamp,
+    hash: hashed,
+    data: req.body,
+  });
+
   const result = await axios.post(chainInfo[selectedChainId].webHookUrl, {
-    symbol,
-    tokenName,
-    amount,
-    to,
-    contractAddress,
-    type,
-    tokenAddress,
-    secret: transactionSecret,
+    t: timeStamp,
+    hash: hashed,
+    data: req.body,
   });
 
   const resultTx = JSON.parse(result.data.result);

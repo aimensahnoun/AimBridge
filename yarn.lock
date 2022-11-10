@@ -1799,6 +1799,11 @@ cross-spawn@^7.0.2:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
+crypto.js@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/crypto.js/-/crypto.js-3.0.0.tgz#aa3c48ad5307a48211833795c908dff450a29361"
+  integrity sha512-eNvFmXsj0kv8OGfSOnfBMbKbcMXb+/LrBNZgW4Nc/jlcl3q9gAQHGB/GMdhkJR3zjrqIAL0TbbUg+PS40HwYcQ==
+
 css-selector-tokenizer@^0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/css-selector-tokenizer/-/css-selector-tokenizer-0.8.0.tgz#88267ef6238e64f2215ea2764b3e2cf498b845dd"
