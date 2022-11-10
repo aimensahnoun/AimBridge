@@ -47,28 +47,28 @@ export default async function handler(
 
   const transactionSecret = process.env.WEBHOOK_SECRET as string;
 
-  const timeStamp = Math.floor(Date.now() / 1000);
+  try {
+    const timeStamp = Math.floor(Date.now() / 1000);
 
-  let data = {
-    t: timeStamp,
-    content: req.body,
-  };
+    let data = {
+      t: timeStamp,
+      content: req.body,
+    };
 
-  const hashed = hash(JSON.stringify(data), transactionSecret);
+    const hashed = hash(JSON.stringify(data), transactionSecret);
 
-  console.log({
-    t: timeStamp,
-    hash: hashed,
-    data: req.body,
-  });
+    const result = await axios.post(chainInfo[selectedChainId].webHookUrl, {
+      t: timeStamp,
+      hash: hashed,
+      data: req.body,
+    });
 
-  const result = await axios.post(chainInfo[selectedChainId].webHookUrl, {
-    t: timeStamp,
-    hash: hashed,
-    data: req.body,
-  });
+    console.log("Result from webhook :", result);
 
-  const resultTx = JSON.parse(result.data.result);
+    const resultTx = JSON.parse(result.data.result);
 
-  res.status(200).json({ tx: resultTx });
+    res.status(200).json({ tx: resultTx });
+  } catch (e) {
+    res.status(400).json({ error: e });
+  }
 }
