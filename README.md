@@ -1,34 +1,20 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AimBridge
 
-## Getting Started
+AimBridge is a proof of concept for a EVM token-bridge developed that uses OpenZeppelin Defender in order to manage the transactions between two networks.
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+- Transfer tokens from source network to target network, by generating a new Wrapper Token in the target network.
+- Reverse the wrapping process, by burning the warpped token in the source network and releasing locked tokens in the target network.
+- Display history of user's transactions using *The Graph* .
+- Streamline the `minting/releasing` process by implementing `OpenZeppelin Defender`, to provide a smoother and easier UX. (This is highly experimental and not suggested in production).
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## How it works
+The bridge is has three important components:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- the `UI` that manages all of the user's interactions and provides an easy and smooth UX.
+- The `Smart contracts` which are the backbone of all transactions.
+- `OpenZeppelin Defender` which are a very important component in this project, and what makes the UX much better.
