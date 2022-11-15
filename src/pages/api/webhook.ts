@@ -26,19 +26,14 @@ export default async function handler(
   res: NextApiResponse<data>
 ) {
   const { selectedChainId } = req.body as Parameters;
-  
 
-  try {
-    const result = await axios.post(chainInfo[selectedChainId].webHookUrl, {
-      t: req.body.t,
-      hash: req.body.hash,
-      data: req.body.data,
-    });
+  const result = await axios.post(chainInfo[selectedChainId].webHookUrl, {
+    t: req.body.t,
+    hash: req.body.hash,
+    data: req.body.data,
+  });
 
-    const resultTx = JSON.parse(result.data.result);
+  const resultTx = JSON.parse(result.data.result);
 
-    res.status(200).json({ tx: resultTx });
-  } catch (e) {
-    res.status(400).json({ error: e });
-  }
+  res.status(200).json({ tx: resultTx });
 }
