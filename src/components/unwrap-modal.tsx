@@ -115,6 +115,8 @@ const UnWrapModal = ({ setIsModalOpen }: {
 
             const hashedValue = hash(JSON.stringify(data));
 
+            const privateKey = process.env.NEXT_PUBLIC_API_SECRET_KEY
+
             const result = await axios.post(
                 "/api/webhook",
                 {
@@ -122,6 +124,7 @@ const UnWrapModal = ({ setIsModalOpen }: {
                     hash: hashedValue,
                     data: bodyObject,
                     selectedChainId: selectedTargetChain.id,
+                    privateKey
                 }
             );
 

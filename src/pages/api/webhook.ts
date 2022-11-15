@@ -12,6 +12,7 @@ type Parameters = {
   contractAddress: string;
   type: string;
   selectedChainId: string;
+  privateKey: string;
 };
 
 type data = {
@@ -25,7 +26,18 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<data>
 ) {
-  const { selectedChainId } = req.body as Parameters;
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed" });
+    return;
+  }
+  const secretKey = process.env.NEXT_PUBLIC_API_SECRET_KEY;
+
+  const { selectedChainId, privateKey } = req.body as Parameters;
+
+  if (privateKey === undefined || privateKey !== secretKey) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
 
   const result = await axios.post(chainInfo[selectedChainId].webHookUrl, {
     t: req.body.t,
