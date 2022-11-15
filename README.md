@@ -5,6 +5,8 @@ AimBridge is a proof of concept for a EVM token-bridge developed that uses OpenZ
 
 
 
+## Demo
+[![AimBridge Demo](https://user-images.githubusercontent.com/62159014/201940171-02699192-5032-47d7-a05d-44d7fc52813e.png)](https://share.descript.com/view/nlj0EDXO9PR)
 ## Features
 
 - Transfer tokens from source network to target network, by generating a new Wrapper Token in the target network.
