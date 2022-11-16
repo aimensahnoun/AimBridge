@@ -5,6 +5,9 @@ AimBridge is a proof of concept for a EVM token-bridge developed that uses OpenZ
 
 
 
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)  ![Lines of code](https://img.shields.io/tokei/lines/github/aimensahnoun/aimbridge) ![GitHub top language](https://img.shields.io/github/languages/top/aimensahnoun/aimbridge)
+
 ## Demo
 [![AimBridge Demo](https://user-images.githubusercontent.com/62159014/201940171-02699192-5032-47d7-a05d-44d7fc52813e.png)](https://share.descript.com/view/nlj0EDXO9PR)
 ## Features
@@ -96,3 +99,93 @@ a change in the original `timestamp` or the `data` would also cause the hash to 
 Even though there are security measures implemented , this is just a proof of concept and is not advised to be deployed to production.
 
 Please make sure that your system is well secured before deploying as it can cause major loses for both the service and users.
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+
+```
+#Alchemy API key
+NEXT_PUBLIC_ALCHEMY_KEY=
+
+#Alchemy Goerli HTTPS URL
+NEXT_PUBLIC_ALCHEMY_GOERLI=
+
+#Alchemy Mumbai HTTPS URL
+NEXT_PUBLIC_ALCHEMY_MUMBAI=
+
+#Web-hook urls provided by OpenZeppelin Defender Autotask
+NEXT_PUBLIC_MUMBAI_WEBHOOK =
+NEXT_PUBLIC_GOERLI_WEBHOOK =
+
+#Secret key used for hashing
+NEXT_PUBLIC_WEBHOOK_SECRET=
+
+#Secret key used for securing API route
+NEXT_PUBLIC_API_SECRET_KEY=
+```
+
+
+
+## Smart Contracts
+
+If you want to use your own deployed smart contrants you should change the addresses in `src/utils/chain-info.ts`
+
+
+```
+export const chainInfo: Record<string, Chain> = {
+  5: {
+    name: "Goerli",
+    contract: YOUR CONTRACT ADDRESS,
+    alchemyUrl: process.env.NEXT_PUBLIC_ALCHEMY_GOERLI as string,
+    webHookUrl: process.env.NEXT_PUBLIC_GOERLI_WEBHOOK as string,
+    explorer: "https://goerli.etherscan.io/tx/",
+    subgraph: YOUR SUBGRAPH ADDRESS,
+  },
+  80001: {
+    name: "Mumbai",
+    contract: YOUR CONTRACT ADDRESS,
+    alchemyUrl: process.env.NEXT_PUBLIC_ALCHEMY_MUMBAI as string,
+    webHookUrl: process.env.NEXT_PUBLIC_MUMBAI_WEBHOOK as string,
+    explorer: "https://mumbai.polygonscan.com/tx/",
+    subgraph: YOUR SUBGRAPH ADDRESS
+  },
+};
+```
+
+
+
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/aimensahnoun/AimBridge
+```
+
+Go to the project directory
+
+```bash
+  cd my-project
+```
+
+Install dependencies
+
+```bash
+  npm install
+
+  #or
+
+  yarn instal
+```
+
+Start the server
+
+```bash
+  npm run dev
+
+  #or
+
+  yarn dev
+
+```
