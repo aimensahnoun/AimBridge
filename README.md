@@ -1,4 +1,7 @@
 
+![Logo](https://user-images.githubusercontent.com/62159014/202256101-c48303cb-9149-4e74-bee8-aceb67254bf2.png)
+
+
 # AimBridge
 
 AimBridge is a proof of concept for a EVM token-bridge developed that uses OpenZeppelin Defender in order to manage the transactions between two networks.
