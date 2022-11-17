@@ -179,7 +179,7 @@ Install dependencies
 
   #or
 
-  yarn instal
+  yarn install
 ```
 
 Start the server
