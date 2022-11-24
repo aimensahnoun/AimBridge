@@ -1,6 +1,6 @@
 import { chainInfo } from "@/utils/chain-info"
 import { ethers } from "ethers"
-import { parseDate } from "../utils/parse-date"
+import { parseDate } from "@/utils/graph-queries"
 
 import { useToken } from "wagmi"
 

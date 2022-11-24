@@ -37,3 +37,15 @@ export const GET_USER_HISTORY = gql`
     }
   }
 `;
+
+export const parseDate = (date : any) => {
+  // Parse epoch (second timestamp) to day month (Jan), year (2020) and time (12:00)
+  const parsedDate = new Date(date * 1000);
+  
+  const day = parsedDate.getDate();
+  const month = parsedDate.toLocaleString('default', { month: 'short' });
+  const year = parsedDate.getFullYear();
+  const time = parsedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+  return `${day} ${month}, ${year} ${time}`;
+};
