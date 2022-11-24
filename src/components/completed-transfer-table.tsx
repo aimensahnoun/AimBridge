@@ -1,6 +1,6 @@
 import { chainInfo } from "@/utils/chain-info"
 import { ethers } from "ethers"
-import { parseDate } from "../utils/parse_date"
+import { parseDate } from "@/utils/parse-date"
 import { useToken } from "wagmi"
 
 const TransferCompletedTable = ({ data }: { data: any }) => {
