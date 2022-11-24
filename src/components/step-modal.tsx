@@ -91,8 +91,6 @@ const StepModal = ({ setIsModalOpen }: {
                 selectedToken?.address,
                 selectedTargetChain.id,
                 amount,
-                erc20Name,
-                erc20Symbol
             );
 
             await initiateTx.wait();

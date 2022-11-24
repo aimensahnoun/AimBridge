@@ -1,12 +1,15 @@
 import { chainInfo } from "@/utils/chain-info"
+import { parseDate } from "@/utils/parse_date"
 import { ethers } from "ethers"
 import { useToken } from "wagmi"
 
 const UnwrappedTokensTable = ({ data }: { data: any }) => {
 
-    const { uwrappedTokens} = data
+    const { unWrappedTokens
+    } = data
 
-    if (uwrappedTokens.length === 0) return <div>No transfers completed</div>
+    if (unWrappedTokens
+        .length === 0) return <div>No transfers completed</div>
 
     return <div className="overflow-x-auto">
         <table className="table table-compact w-full">
@@ -17,12 +20,14 @@ const UnwrappedTokensTable = ({ data }: { data: any }) => {
                     <th>Token Symbol</th>
                     <th>Network</th>
                     <th>Amount</th>
+                    <th>Date</th>
 
                 </tr>
             </thead>
             <tbody>
 
-                {uwrappedTokens.map((history: any) => <UnwrapedTokenHistory key={history.id} history={history} />)}
+                {unWrappedTokens
+                    .map((history: any) => <UnwrapedTokenHistory key={history.id} history={history} />)}
 
             </tbody>
 
@@ -44,6 +49,7 @@ const UnwrapedTokenHistory = ({ history }: { history: any }) => {
         <th>{tokenData?.symbol}</th>
         <th>{chainInfo[history.chainId]?.name}</th>
         <th>{ethers.utils.formatEther(history.amount).toString()} {tokenData?.symbol}</th>
+        <th>{parseDate(history.timestamp)}</th>
 
     </tr>
 }

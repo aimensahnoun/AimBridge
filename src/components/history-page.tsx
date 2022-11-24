@@ -54,7 +54,7 @@ export default function HistoryPage() {
             index: 0,
         },
         {
-            name: "Completed Transfers",
+            name: "Minted Tokens",
             index: 1,
         },
         {
@@ -97,6 +97,8 @@ export default function HistoryPage() {
         }
     }, [chain])
 
+
+    console.log("userHistory", userHistory)
 
     return (
         <div suppressHydrationWarning>

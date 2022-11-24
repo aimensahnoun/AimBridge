@@ -10,7 +10,7 @@ type Chain = {
 export const chainInfo: Record<string, Chain> = {
   5: {
     name: "Goerli",
-    contract: "0x4198e6BeB97dfe80e86A0c7CEFdeF1aDdD0a5687",
+    contract: "0xa30aaaE39586Ee5Ac81D23F82eb422B62a237dC7",
     alchemyUrl: process.env.NEXT_PUBLIC_ALCHEMY_GOERLI as string,
     webHookUrl: process.env.NEXT_PUBLIC_GOERLI_WEBHOOK as string,
     explorer: "https://goerli.etherscan.io/tx/",
@@ -18,7 +18,7 @@ export const chainInfo: Record<string, Chain> = {
   },
   80001: {
     name: "Mumbai",
-    contract: "0x3771E772A2716E3d3Db380A156921E786f10aA46",
+    contract: "0x45b6467180de2D9ac3290BC880D7f5faAd09E26a",
     alchemyUrl: process.env.NEXT_PUBLIC_ALCHEMY_MUMBAI as string,
     webHookUrl: process.env.NEXT_PUBLIC_MUMBAI_WEBHOOK as string,
     explorer: "https://mumbai.polygonscan.com/tx/",

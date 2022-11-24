@@ -1,4 +1,5 @@
 import { chainInfo } from "@/utils/chain-info"
+import { parseDate } from "@/utils/parse_date"
 import { ethers } from "ethers"
 import { useToken } from "wagmi"
 
@@ -17,6 +18,7 @@ const BurnedTokensTable = ({ data }: { data: any }) => {
                     <th>Token Symbol</th>
                     <th>Network</th>
                     <th>Amount</th>
+                    <th>Date</th>
 
                 </tr>
             </thead>
@@ -44,6 +46,7 @@ const BurnedTokensHistory = ({ history }: { history: any }) => {
         <th>{tokenData?.symbol}</th>
         <th>{chainInfo[history.chainId]?.name}</th>
         <th>{ethers.utils.formatEther(history.amount).toString()} {tokenData?.symbol}</th>
+        <th>{parseDate(history.timestamp)}</th>
 
     </tr>
 }
