@@ -26,7 +26,9 @@ const UnwrappedTokensTable = ({ data }: { data: any }) => {
             </thead>
             <tbody>
 
-                {unWrappedTokens
+                {[...unWrappedTokens].sort((b,a) => {
+                    return a.timestamp - b.timestamp
+                })
                     .map((history: any) => <UnwrapedTokenHistory key={history.id} history={history} />)}
 
             </tbody>

@@ -24,7 +24,9 @@ const TransferCompletedTable = ({ data }: { data: any }) => {
             </thead>
             <tbody>
 
-                {tokenMinteds.map((history: any) => <TransferCompletedHistory key={history.id} history={history} />)}
+                {[...tokenMinteds].sort((b,a) => {
+                    return a.timestamp - b.timestamp
+                }).map((history: any) => <TransferCompletedHistory key={history.id} history={history} />)}
 
             </tbody>
 

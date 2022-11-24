@@ -8,9 +8,12 @@ const InitTransferTable = ({ data }: { data: any }) => {
 
     const { transferInitiateds } = data
 
-    if (transferInitiateds.length === 0) return <div>No transfers found</div>
 
-    
+
+
+
+    if ((transferInitiateds).length === 0) return <div>No transfers found</div>
+
 
     return <div className="overflow-x-auto">
         <table className="table table-compact w-full">
@@ -28,7 +31,9 @@ const InitTransferTable = ({ data }: { data: any }) => {
             </thead>
             <tbody>
 
-                {transferInitiateds.map((history: any) => <InitTransferHistory key={history.id} history={history} />)}
+                {[...transferInitiateds].sort((b, a) => {
+                    return a.timestamp - b.timestamp
+                }).map((history: any) => <InitTransferHistory key={history.id} history={history} />)}
 
             </tbody>
 
@@ -41,8 +46,6 @@ const InitTransferHistory = ({ history }: { history: any }) => {
     const { data: tokenData } = useToken({
         address: history.tokenAddress as `0x${string}`,
     })
-
-    console.log(history)
 
 
     return <tr>

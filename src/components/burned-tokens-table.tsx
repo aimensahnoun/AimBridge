@@ -24,7 +24,9 @@ const BurnedTokensTable = ({ data }: { data: any }) => {
             </thead>
             <tbody>
 
-                {burnedTokens.map((history: any) => <BurnedTokensHistory key={history.id} history={history} />)}
+                {[...burnedTokens].sort((b, a) => {
+                    return a.timestamp - b.timestamp
+                }).map((history: any) => <BurnedTokensHistory key={history.id} history={history} />)}
 
             </tbody>
 

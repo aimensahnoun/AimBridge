@@ -98,8 +98,6 @@ export default function HistoryPage() {
     }, [chain])
 
 
-    console.log("userHistory", userHistory)
-
     return (
         <div suppressHydrationWarning>
             <Head>
