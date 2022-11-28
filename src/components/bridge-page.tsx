@@ -23,6 +23,7 @@ import UnWrapModal from './unwrap-modal'
 import { useRouter } from 'next/router'
 import { hash } from '@/utils/hasing'
 import * as ERC20 from '@/constants/contract/WrapperToken.json'
+import * as BRIDGE from '@/constants/contract/Bridge.json'
 import { chainInfo } from '@/utils/chain-info'
 
 const BridgeMain = () => {
@@ -36,6 +37,7 @@ const BridgeMain = () => {
     const [ERC20FromWallet, setERC20FromWallet] = useState(true)
     const [ERC20Address, setERC20Address] = useState<string>("")
     const [isCheckingPermit, setIsCheckingPermit] = useState(false)
+    const [fee, setFee] = useState<string>("")
 
 
 
@@ -110,6 +112,22 @@ const BridgeMain = () => {
         if (inputRef.current) inputRef.current.value = "0"
     }, [ERC20FromWallet])
 
+    useEffect(() => {
+        (async () => {
+            if (chain?.id === undefined || !signer) return
+
+            const bridge = new ethers.Contract(chainInfo[chain?.id!].contract, BRIDGE.abi, signer!)
+
+            if (bridge) {
+                const fee = await bridge.fee()
+
+                console.log(fee.toString())
+
+                setFee(utils.formatEther(fee.toString()))
+            }
+
+        })()
+    }, [chain, signer])
 
     // Methods
     const isButtonDisabled = () => {
@@ -253,6 +271,11 @@ const BridgeMain = () => {
                                         ERC20FromWallet ? selectedErc20?.symbol : erc20Balance?.symbol
                                     }</span>
                                 </label>
+                                {parseFloat(transferAmount) > 0 && <span>
+                                    Total Amount : {
+                                        parseFloat(transferAmount) + parseFloat(fee)
+                                    }
+                                </span>}
                             </div>
 
 
@@ -287,8 +310,9 @@ const BridgeMain = () => {
 
                                         }
 
-
-                                        const parseAmount = utils.parseEther(transferAmount)
+                                        const totalAmount = (parseFloat(transferAmount) + parseFloat(fee)).toString()
+                                        console.log("Total Amount : ", totalAmount)
+                                        const parseAmount = utils.parseEther(totalAmount)
                                         setSelectedTargetChainGlobal(selectedTargetChain)
                                         setSelectedSourceChain(chain!)
                                         setSelectedToken(ERC20FromWallet ? selectedErc20 : tokenData as any)
@@ -338,7 +362,7 @@ const BridgeMain = () => {
                                             setIsUnwrapModalOpen(true)
                                             setIsCheckingPermit(false)
                                         }}
-                                    >{isCheckingPermit ? "Loading...": "Release Token"}</button>}
+                                    >{isCheckingPermit ? "Loading..." : "Release Token"}</button>}
                             </div>
                         </Then>
                     </If>
