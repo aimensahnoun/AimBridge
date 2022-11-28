@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 
 // Dependencies import
 import { useAtom } from 'jotai'
-import { Chain, useAccount, useBalance, useContractRead, useNetwork, useToken } from 'wagmi'
+import { Chain, useAccount, useBalance, useContractRead, useNetwork, useSigner, useToken } from 'wagmi'
 import { ethers, utils } from 'ethers'
 import { If, Else, Then } from 'react-if'
 import ClipLoader from "react-spinners/ClipLoader";
@@ -15,13 +15,15 @@ import StepModal from './step-modal'
 
 
 // Utils import
-import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom, nativeTokenAddressAtom } from '@/utils/global-state'
+import { navbarHeightAtom, amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom, nativeTokenAddressAtom, hasPermitAtom, nonceAtom } from '@/utils/global-state'
 import { getAllErc20Tokens } from '@/utils/alchemy-api'
 import { Erc20Token } from '@/utils/types'
 import { contractConfig } from '@/constants/contract/config'
 import UnWrapModal from './unwrap-modal'
 import { useRouter } from 'next/router'
 import { hash } from '@/utils/hasing'
+import * as ERC20 from '@/constants/contract/WrapperToken.json'
+import { chainInfo } from '@/utils/chain-info'
 
 const BridgeMain = () => {
 
@@ -33,6 +35,8 @@ const BridgeMain = () => {
     const [isUnwrapModalOpen, setIsUnwrapModalOpen] = useState(false)
     const [ERC20FromWallet, setERC20FromWallet] = useState(true)
     const [ERC20Address, setERC20Address] = useState<string>("")
+    const [isCheckingPermit, setIsCheckingPermit] = useState(false)
+
 
 
     // Ref
@@ -45,7 +49,10 @@ const BridgeMain = () => {
     const [_amount, setAmount] = useAtom(amountAtom)
     const [_selectedSourceChain, setSelectedSourceChain] = useAtom(selectedSourceChainAtom)
     const [selectedNativeTokenAddress, setNativeTokenAddress] = useAtom(nativeTokenAddressAtom)
+    const [hasPermit, setHasPermit] = useAtom(hasPermitAtom)
+    const [_nonce, setNonce] = useAtom(nonceAtom)
 
+    // Router
     const router = useRouter()
 
     // Wagmi state
@@ -71,6 +78,8 @@ const BridgeMain = () => {
         watch: true
     })
 
+    const { data: signer, isError, isLoading } = useSigner()
+
     const targetChains = chains.filter(currentChain => currentChain.id !== chain?.id)
 
     const [selectedTargetChain, setSelectedTargetChain] = useState<Chain>(targetChains[0])
@@ -81,6 +90,7 @@ const BridgeMain = () => {
     // UseEffects
     useEffect(() => {
         (async () => {
+            if (isModalOpen || isUnwrapModalOpen) return
             const tokens = await getAllErc20Tokens(address!, chain?.id!)
             const nonZeroTokens = tokens.filter(token => parseFloat(token.balance) !== 0)
             setErc20List(nonZeroTokens)
@@ -94,12 +104,13 @@ const BridgeMain = () => {
             router.reload()
         }
 
-    }, [chain])
+    }, [chain, router])
 
     useEffect(() => {
         setTransferAmount("0")
         if (inputRef.current) inputRef.current.value = "0"
     }, [ERC20FromWallet])
+
 
     // Methods
     const isButtonDisabled = () => {
@@ -245,12 +256,38 @@ const BridgeMain = () => {
                                 </label>
                             </div>
 
+
+
                             <div className='flex items-center justify-between'>
                                 <button disabled={
                                     isButtonDisabled()
                                 } className={`p-2 rounded-lg bg-brandPurple ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
                                     } ${nativeTokenAddress == ethers.constants.AddressZero && gotNativeToken ? "w-full" : "w-[45%]"} `}
-                                    onClick={() => {
+                                    onClick={async () => {
+                                        setIsCheckingPermit(true)
+                                        try {
+                                            const erc20 = new ethers.Contract(ERC20FromWallet ? selectedErc20?.address : tokenData?.address as any, ERC20.abi, signer!)
+
+
+                                            const gas = await (await erc20.estimateGas.nonces(
+                                                address!
+                                            )).toNumber()
+
+                                            console.log("Gas : ", gas)
+                                            const nonce = await erc20.nonces(
+                                                address!
+                                            )
+                                            setNonce(nonce)
+
+                                            setHasPermit(true)
+
+
+                                        } catch (e) {
+                                            setHasPermit(false)
+                                            console.log(e)
+
+                                        }
+
 
                                         const parseAmount = utils.parseEther(transferAmount)
                                         setSelectedTargetChainGlobal(selectedTargetChain)
@@ -258,8 +295,9 @@ const BridgeMain = () => {
                                         setSelectedToken(ERC20FromWallet ? selectedErc20 : tokenData as any)
                                         setAmount(parseAmount)
                                         setIsModalOpen(true)
+                                        setIsCheckingPermit(false)
                                     }}
-                                >Start Transfer</button>
+                                >{isCheckingPermit ? "...Loading" : "Start Transfer"}</button>
 
                                 {
                                     nativeTokenAddress !== ethers.constants.AddressZero && gotNativeToken &&
