@@ -149,6 +149,7 @@ const StepModal = ({ setIsModalOpen }: {
 
                 const { v, r, s } = ethers.utils.splitSignature(signedData!)
 
+                console.log("v: ", v, "r: ", r, "s: ", s)
 
 
                 initiateTx = await bridgeContract!.initiateTransferWithPermit(

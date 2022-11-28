@@ -90,7 +90,6 @@ const BridgeMain = () => {
     // UseEffects
     useEffect(() => {
         (async () => {
-            if (isModalOpen || isUnwrapModalOpen) return
             const tokens = await getAllErc20Tokens(address!, chain?.id!)
             const nonZeroTokens = tokens.filter(token => parseFloat(token.balance) !== 0)
             setErc20List(nonZeroTokens)
@@ -297,7 +296,7 @@ const BridgeMain = () => {
                                         setIsModalOpen(true)
                                         setIsCheckingPermit(false)
                                     }}
-                                >{isCheckingPermit ? "...Loading" : "Start Transfer"}</button>
+                                >{isCheckingPermit ? "Loading..." : "Start Transfer"}</button>
 
                                 {
                                     nativeTokenAddress !== ethers.constants.AddressZero && gotNativeToken &&
@@ -305,7 +304,30 @@ const BridgeMain = () => {
                                         isButtonDisabled()
                                     } className={`p-2 rounded-lg w-[45%] bg-primaryColor ${isButtonDisabled() ? "opacity-50 cursor-not-allowed" : ""
                                         }`}
-                                        onClick={() => {
+                                        onClick={async () => {
+                                            setIsCheckingPermit(true)
+                                            try {
+                                                const erc20 = new ethers.Contract(ERC20FromWallet ? selectedErc20?.address : tokenData?.address as any, ERC20.abi, signer!)
+
+
+                                                const gas = await (await erc20.estimateGas.nonces(
+                                                    address!
+                                                )).toNumber()
+
+                                                console.log("Gas : ", gas)
+                                                const nonce = await erc20.nonces(
+                                                    address!
+                                                )
+                                                setNonce(nonce)
+
+                                                setHasPermit(true)
+
+
+                                            } catch (e) {
+                                                setHasPermit(false)
+                                                console.log(e)
+
+                                            }
                                             const parseAmount = utils.parseEther(transferAmount)
                                             setSelectedTargetChainGlobal(selectedTargetChain)
                                             setSelectedSourceChain(chain!)
@@ -314,8 +336,9 @@ const BridgeMain = () => {
                                             setAmount(parseAmount)
 
                                             setIsUnwrapModalOpen(true)
+                                            setIsCheckingPermit(false)
                                         }}
-                                    >UnWrap Token</button>}
+                                    >{isCheckingPermit ? "Loading...": "Release Token"}</button>}
                             </div>
                         </Then>
                     </If>

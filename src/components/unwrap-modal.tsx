@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react'
 import { useAtom } from 'jotai'
 
 // Utils import
-import { amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom, nativeTokenAddressAtom } from '@/utils/global-state'
+import { amountAtom, selectedTargetChainAtom, selectedTokenAtom, selectedSourceChainAtom, nativeTokenAddressAtom, nonceAtom, hasPermitAtom } from '@/utils/global-state'
 import { chainInfo } from "@utils/chain-info"
-import { Chain, useAccount, useContract, useSigner } from 'wagmi'
+import { Chain, useAccount, useContract, useSigner, useSignTypedData } from 'wagmi'
 import { Erc20Token } from '@/utils/types'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { lottieConfig } from '@/utils/lottie-config'
 import * as ERC20JSON from "@constants/contract/WrapperToken.json"
 import * as BRIDGEJSON from "@constants/contract/Bridge.json"
@@ -42,6 +42,8 @@ const UnWrapModal = ({ setIsModalOpen }: {
     const [selectedTargetChain, setSelectedChain] = useAtom(selectedTargetChainAtom)
     const [selectedSourceChain, setSelectedSourceChain] = useAtom(selectedSourceChainAtom)
     const [nativeTokenAddress, setNativeTokenAddress] = useAtom(nativeTokenAddressAtom)
+    const [nonce] = useAtom(nonceAtom)
+    const [hasPermit] = useAtom(hasPermitAtom)
 
 
     // Wagmi
@@ -60,6 +62,48 @@ const UnWrapModal = ({ setIsModalOpen }: {
         signerOrProvider: signer
     })
 
+    const { signTypedDataAsync } = useSignTypedData({
+        domain: {
+            name: selectedToken?.name,
+            version: "1",
+            chainId: selectedSourceChain?.id,
+            verifyingContract: selectedToken?.address as any
+        } as const,
+        types: {
+            Permit: [
+                {
+                    name: "owner",
+                    type: "address",
+                },
+                {
+                    name: "spender",
+                    type: "address",
+                },
+                {
+                    name: "value",
+                    type: "uint256",
+                },
+                {
+                    name: "nonce",
+                    type: "uint256",
+                },
+                {
+                    name: "deadline",
+                    type: "uint256",
+                },
+            ],
+        } as const
+        ,
+        value: {
+            owner: address as any,
+            spender: chainInfo[selectedSourceChain!.id].factory as any,
+            value: amount!,
+            nonce: nonce,
+            deadline: ethers.constants.MaxUint256,
+        } as const
+
+    })
+
     const bridgeToken = async () => {
         if (isLoading) return
         if (!signer) return
@@ -67,32 +111,55 @@ const UnWrapModal = ({ setIsModalOpen }: {
         if (!selectedToken || !amount || !selectedTargetChain || !selectedSourceChain) return
         setIsLoading(true)
 
+        const erc20Name = selectedToken.name
+        const erc20Symbol = selectedToken.symbol
+
+
+
         try {
 
-            const factoryAddress = await bridgeContract?.factory()
+            let burnTransaction;
+            if (!hasPermit) {
+                const transferTransaction = await erc20Contract?.approve(
+                    chainInfo[selectedSourceChain!.id].factory,
+                    amount
+                )
 
-            const transferTransaction = await erc20Contract?.approve(
-                factoryAddress,
-                amount
-            )
+                await transferTransaction?.wait()
 
-            await transferTransaction?.wait()
+                console.log("Approved Bridge")
 
-            console.log("Approved Bridge")
+                setStep(1)
 
-            setStep(1)
+                burnTransaction = await bridgeContract!.burnWrappedToken(
+                    erc20Symbol,
+                    amount,
+                    address
+                );
 
-            const erc20Name = selectedToken.name
-            const erc20Symbol = selectedToken.symbol
+                await burnTransaction.wait();
+            } else {
+                setStep(1)
 
-            const burnTransaction = await bridgeContract!.burnWrappedToken(
-                erc20Symbol,
-                amount,
-                address
-            );
+                const signedData = await signTypedDataAsync()
 
-            await burnTransaction.wait();
 
+                const { v, r, s } = ethers.utils.splitSignature(signedData!)
+
+                console.log("v: ", v, "r: ", r, "s: ", s)
+
+                burnTransaction = await bridgeContract!.burnWrappedTokenWithPermit(
+                    erc20Symbol,
+                    amount,
+                    address,
+                    ethers.constants.MaxUint256,
+                    v,
+                    r,
+                    s
+                )
+
+                await burnTransaction.wait()
+            }
             console.log("Initiated transfer")
 
             setStep(2)
@@ -158,9 +225,9 @@ const UnWrapModal = ({ setIsModalOpen }: {
         <div className="w-[40rem] p-4 bg-secondaryBg rounded-lg flex flex-col gap-y-4">
             <span className="font-bold text-lg">Bridge doing bridge things</span>
             <ul className="steps self-center">
-                <li className={`step ${step >= 0 && "step-primary"} ${isComplete && "step-success"} `}>Approve Transfer</li>
+                {!hasPermit && <li className={`step ${step >= 0 && "step-primary"} ${isComplete && "step-success"} `}>Approve Transfer</li>}
                 <li className={`step ${step > 0 && "step-primary"} ${isComplete && "step-success"}`}>Burning Tokens</li>
-                <li className={`step ${step > 1 && "step-primary"} ${isComplete && "step-success"}`}>Unwraping</li>
+                <li className={`step ${step > 1 && "step-primary"} ${isComplete && "step-success"}`}>Releasing</li>
                 <li className={`step ${step > 2 && "step-primary"} ${isComplete && "step-success"}`}>Complete</li>
             </ul>
             {
