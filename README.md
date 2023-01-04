@@ -12,7 +12,7 @@ AimBridge is a proof of concept for a EVM token-bridge developed that uses OpenZ
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)  ![Lines of code](https://img.shields.io/tokei/lines/github/aimensahnoun/aimbridge) ![GitHub top language](https://img.shields.io/github/languages/top/aimensahnoun/aimbridge)
 
 ## Demo
-[![AimBridge Demo](https://user-images.githubusercontent.com/62159014/201940171-02699192-5032-47d7-a05d-44d7fc52813e.png)](https://share.descript.com/view/nlj0EDXO9PR)
+[![AimBridge Demo](https://user-images.githubusercontent.com/62159014/201940171-02699192-5032-47d7-a05d-44d7fc52813e.png)](https://www.loom.com/share/b4281493343e4deea3a1dfc1be36819f)
 ## Features
 
 - Transfer tokens from source network to target network, by generating a new Wrapper Token in the target network.
